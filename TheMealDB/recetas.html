@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Recetario</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 p-4">
+
+  <header class="mb-6">
+    <h1 class="text-3xl font-bold text-center mb-4">Busca una receta a tu gusto!</h1>
+    <div class="flex flex-col sm:flex-row justify-center gap-2">
+      <input id="search" type="text" placeholder="Buscar receta..." class="p-2 border rounded flex-1">
+      <button onclick="buscarReceta()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Buscar</button>
+    </div>
+  </header>
+
+  <main id="recetas" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></main>
+
+<script>
+async function buscarReceta() {
+  const query = document.getElementById('search').value;
+  const res = await fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${query}`);
+  const data = await res.json();
+  const recetasDiv = document.getElementById('recetas');
+  recetasDiv.innerHTML = '';
+
+  if (!data.meals) {
+    recetasDiv.innerHTML = '<p class="text-center col-span-full">No se encontraron recetas.</p>';
+    return;
+  }
+
+  data.meals.forEach(meal => {
+    let ingredientesHTML = '';
+    for (let i = 1; i <= 20; i++) {
+      const ing = meal[`strIngredient${i}`];
+      const med = meal[`strMeasure${i}`];
+      if (ing) {
+        ingredientesHTML += `<li>${ing} - ${med}</li>`;
+      }
+    }
+
+    recetasDiv.innerHTML += `
+      <div class="bg-white rounded-lg shadow-md p-4 flex flex-col">
+        <img src="${meal.strMealThumb}" alt="${meal.strMeal}" class="rounded-lg mb-4 object-cover w-full h-48 sm:h-64">
+        <h2 class="text-xl font-semibold mb-2">${meal.strMeal}</h2>
+        <p class="mb-2"><strong>Origen:</strong> ${meal.strArea}</p>
+        <h3 class="font-semibold mb-1">Ingredientes:</h3>
+        <ul class="list-disc list-inside mb-2 text-sm">${ingredientesHTML}</ul>
+        <h3 class="font-semibold mb-1">Preparación:</h3>
+        <p class="text-sm mb-2">${meal.strInstructions}</p>
+      </div>
+    `;
+  });
+}
+</script>
+
+</body>
+</html>
