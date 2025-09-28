@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokédex</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+  <style>
+    html {
+      height: 100%;
+    }
+    body {
+      min-height: 100%;
+      font-family: 'Rubik', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-violet-300 text-gray-800 p-4">
+
+  <header class="mb-6">
+    <div class="bg-violet-200 p-4 rounded-lg text-3xl font-medium mb-6 text-center max-w-2xl mx-auto">
+      <h1>¡Busca tu Pokémon favorito!</h1>
+    </div>
+    <div class="flex flex-col sm:flex-row justify-center gap-2 max-w-lg mx-auto">
+      <input id="search" type="text" placeholder="Buscar Pokémon..." class="text-2xl text-center border-0 rounded-lg flex-1 bg-white shadow-md focus:outline-none focus:ring-2 focus:ring-violet-500">
+      <button onclick="buscarPokemon()" class="bg-violet-950 text-white px-6 py-3 rounded-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-200 ease-out transform cursor-pointer font-medium">Buscar</button>
+    </div>
+  </header>
+
+  <main id="pokemones" class="flex justify-center gap-6 max-w-7xl mx-auto"></main>
+
+<script>
+async function buscarPokemon() {
+  const query = document.getElementById('search').value.toLowerCase().trim();
+  if (!query) return;
+  
+  const pokemonesDiv = document.getElementById('pokemones');
+  pokemonesDiv.innerHTML = '<div class="bg-violet-200 p-6 rounded-lg text-center col-span-full"><p class="text-xl font-medium">Buscando...</p></div>';
+
+  try {
+    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${query}`);
+    if (!res.ok) {
+      pokemonesDiv.innerHTML = '<div class="bg-violet-200 p-6 rounded-lg text-center col-span-full"><p class="text-xl font-medium">No se encontró el Pokémon.</p></div>';
+      return;
+    }
+    
+    const pokemon = await res.json();
+    pokemonesDiv.innerHTML = '';
+
+    const speciesRes = await fetch(pokemon.species.url);
+    const speciesData = await speciesRes.json();
+
+    let tiposHTML = '';
+    pokemon.types.forEach(typeInfo => {
+      tiposHTML += `<p class="bg-violet-200 text-violet-950 px-3 py-1 rounded-full text-sm font-semibold mr-2 mb-2 inline-block">${typeInfo.type.name}</p>`;
+    });
+
+    let habilidadesHTML = '';
+    pokemon.abilities.forEach(abilityInfo => {
+      habilidadesHTML += `<li class="mb-1">${abilityInfo.ability.name}${abilityInfo.is_hidden ? ' (oculta)' : ''}</li>`;
+    });
+
+    let statsHTML = '';
+    pokemon.stats.forEach(statInfo => {
+      const statName = {
+        'hp': 'PS',
+        'attack': 'Ataque',
+        'defense': 'Defensa',
+        'special-attack': 'At. Esp.',
+        'special-defense': 'Def. Esp.',
+        'speed': 'Velocidad'
+      }[statInfo.stat.name] || statInfo.stat.name;
+      
+      statsHTML += `
+        <div class="mb-2">
+          <div class="flex justify-between items-center mb-1">
+            <p class="text-sm font-semibold">${statName}</p>
+            <p class="text-sm">${statInfo.base_stat}</p>
+          </div>
+        </div>
+      `;
+    });
+
+    pokemonesDiv.innerHTML = `
+      <div class="bg-violet-950 rounded-lg shadow-md p-6 flex flex-col min-w-1/2 transition-all duration-200 ease-out hover:shadow-2xl hover:-translate-y-2 transform">
+        <div class="text-center mb-4">
+          <img src="${pokemon.sprites.other['official-artwork'].front_default || pokemon.sprites.front_default}" 
+               alt="${pokemon.name}" 
+               class="mx-auto rounded-lg mb-4 object-contain w-48 h-48 transform hover:scale-105 transition-transform duration-300 bg-violet-200 p-4">
+        </div>
+        
+        <div class="text-center mb-4">
+          <h2 class="text-3xl font-semibold mb-2 text-white capitalize">${pokemon.name}</h2>
+          <p class="text-white opacity-75 text-lg mb-3">#${pokemon.id.toString().padStart(3, '0')}</p>
+          <div class="mb-4">${tiposHTML}</div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div class="text-center">
+            <p class="text-white opacity-75 text-sm">Altura</p>
+            <p class="text-white font-semibold text-xl">${pokemon.height / 10} m</p>
+          </div>
+          <div class="text-center">
+            <p class="text-white opacity-75 text-sm">Peso</p>
+            <p class="text-white font-semibold text-xl">${pokemon.weight / 10} kg</p>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <h3 class="font-semibold mb-2 text-white text-xl">Habilidades:</h3>
+          <ul class="list-disc list-inside text-lg text-white opacity-75 capitalize">${habilidadesHTML}</ul>
+        </div>
+
+        <div>
+          <h3 class="font-semibold mb-3 text-white text-xl">Estadísticas Base:</h3>
+          <div class="text-white opacity-75">${statsHTML}</div>
+        </div>
+      </div>
+    `;
+
+  } catch (error) {
+    pokemonesDiv.innerHTML = '<div class="bg-violet-200 p-6 rounded-lg text-center col-span-full"><p class="text-xl font-medium">Error al buscar el Pokémon.</p></div>';
+    console.error('Error:', error);
+  }
+}
+
+// Permitir búsqueda con Enter
+document.getElementById('search').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') {
+    buscarPokemon();
+  }
+});
+</script>
+
+</body>
+</html>
