@@ -32,6 +32,7 @@
 
   <main id="pokemones" class="flex justify-center gap-6 max-w-xl mx-auto"></main>
 
+<!-- Código JavaScript -->
 <script>
 async function buscarPokemon() {
   const query = document.getElementById('search').value.toLowerCase().trim();
@@ -127,7 +128,8 @@ async function buscarPokemon() {
   }
 }
 
-// Permitir búsqueda con Enter
+<!-- Permitir búsqueda con botón -->
+
 document.getElementById('search').addEventListener('keypress', function(e) {
   if (e.key === 'Enter') {
     buscarPokemon();
