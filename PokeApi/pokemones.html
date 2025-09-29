@@ -30,7 +30,7 @@
     </div>
   </header>
 
-  <main id="pokemones" class="flex justify-center gap-6 max-w-7xl mx-auto"></main>
+  <main id="pokemones" class="flex justify-center gap-6 max-w-xl mx-auto"></main>
 
 <script>
 async function buscarPokemon() {
@@ -55,7 +55,7 @@ async function buscarPokemon() {
 
     let tiposHTML = '';
     pokemon.types.forEach(typeInfo => {
-      tiposHTML += `<p class="bg-violet-200 text-violet-950 px-3 py-1 rounded-full text-sm font-semibold mr-2 mb-2 inline-block">${typeInfo.type.name}</p>`;
+      tiposHTML += `<p class="bg-violet-200 text-violet-950 px-3 py-1 rounded-full text-sm font-semibold mr-2 mb-2 inline-block ">${typeInfo.type.name}</p>`;
     });
 
     let habilidadesHTML = '';
@@ -85,11 +85,11 @@ async function buscarPokemon() {
     });
 
     pokemonesDiv.innerHTML = `
-      <div class="bg-violet-950 rounded-lg shadow-md p-6 flex flex-col min-w-1/2 transition-all duration-200 ease-out hover:shadow-2xl hover:-translate-y-2 transform">
+      <div class="bg-violet-950 rounded-lg shadow-md p-6 flex flex-col transition-all duration-200 ease-out hover:shadow-2xl hover:-translate-y-2 transform">
         <div class="text-center mb-4">
           <img src="${pokemon.sprites.other['official-artwork'].front_default || pokemon.sprites.front_default}" 
                alt="${pokemon.name}" 
-               class="mx-auto rounded-lg mb-4 object-contain w-48 h-48 transform hover:scale-105 transition-transform duration-300 bg-violet-200 p-4">
+               class="mx-auto rounded-lg mb-4 object-contain w-64 h-64 transform hover:scale-105 transition-transform duration-300 bg-violet-200 p-4">
         </div>
         
         <div class="text-center mb-4">
